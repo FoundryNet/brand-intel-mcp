@@ -1,0 +1,20 @@
+{
+  "name": "Brand Intelligence MCP",
+  "description": "Domain & brand intelligence for agents: company enrichment, domain intelligence, tech stack detection, and brand research from WHOIS, DNS, CT logs, Wayback, and tech fingerprinting.",
+  "url": "https://github.com/FoundryNet/brand-intel-mcp",
+  "capabilities": [
+    "company_enrichment",
+    "domain_intelligence",
+    "tech_stack_detection",
+    "brand_research"
+  ],
+  "protocols": {
+    "mcp": {
+      "endpoint": "https://brand-intel-mcp-production.up.railway.app/mcp",
+      "transport": "streamable-http",
+      "tools_count": 4
+    },
+    "x402": { "supported": true, "currency": "USDC", "network": "solana" }
+  },
+  "contact": "hello@foundrynet.io"
+}

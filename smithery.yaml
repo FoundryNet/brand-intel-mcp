@@ -1,0 +1,20 @@
+name: "@foundrynet/brand-intel"
+displayName: "Brand Intelligence MCP"
+description: >-
+  Domain and brand intelligence for AI agents — company enrichment, domain
+  intelligence, tech stack detection, and brand research. Tools: domain_profile
+  (full profile), tech_stack (detected technologies, CMS, hosting), domain_age
+  (free), and batch_enrich (the volume play for sales agents). Data from WHOIS,
+  DNS, SSL/CT logs, Wayback Machine, and tech fingerprinting, cached with a free
+  tier then x402 (USDC on Solana).
+startCommand:
+  type: http
+  url: "https://brand-intel-mcp-production.up.railway.app/mcp"
+  transport: streamable-http
+  configSchema:
+    type: object
+    properties:
+      api_key:
+        type: string
+        title: "Forge billing key (optional)"
+        description: "fnet_ key to bypass the per-query x402 paywall and bill to a Forge account."

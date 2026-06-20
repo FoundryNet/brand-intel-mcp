@@ -1,12 +1,36 @@
-name: "@foundrynet/brand-intel"
-displayName: "Brand Intelligence MCP"
+name: "@foundrynet/brand-intel-mcp"
+displayName: "FoundryNet Brand Intelligence"
 description: >-
-  Domain and brand intelligence for AI agents — company enrichment, domain
-  intelligence, tech stack detection, and brand research. Tools: domain_profile
-  (full profile), tech_stack (detected technologies, CMS, hosting), domain_age
-  (free), and batch_enrich (the volume play for sales agents). Data from WHOIS,
-  DNS, SSL/CT logs, Wayback Machine, and tech fingerprinting, cached with a free
-  tier then x402 (USDC on Solana).
+  Domain and company enrichment — WHOIS, tech stack detection, SSL monitoring, social presence, and historical snapshots via Wayback Machine.
+icon: "🏢"
+homepage: "https://foundrynet.io"
+repository: "https://github.com/FoundryNet/brand-intel-mcp"
+license: "MIT"
+categories:
+  - data
+  - business
+  - research
+tags:
+  - company-enrichment
+  - domain-intelligence
+  - whois
+  - tech-stack
+  - brand-research
+  - due-diligence
+keywords:
+  - company-enrichment
+  - domain-intelligence
+  - whois
+  - tech-stack
+  - brand-research
+  - due-diligence
+attestation:
+  protocol: "MINT Protocol"
+  verified_outputs: true
+  live_feed: "https://mint.foundrynet.io/feed"
+network:
+  name: "FoundryNet Data Network"
+  servers: 17
 startCommand:
   type: http
   url: "https://brand-intel-mcp-production.up.railway.app/mcp"

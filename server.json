@@ -1,9 +1,30 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.FoundryNet/brand-intel-mcp",
-  "title": "Brand Intelligence MCP",
-  "description": "Domain & brand intelligence: company enrichment, tech stack detection, brand research.",
+  "title": "Brand & Domain Intelligence MCP",
+  "description": "Enrich any company or domain on demand — registration age (WHOIS), tech stack, hosting, and SSL details — for company research and lead enrichment.",
   "version": "1.0.0",
+  "homepage": "https://foundrynet.io",
+  "keywords": [
+    "company enrichment",
+    "domain intelligence",
+    "tech stack detection",
+    "WHOIS",
+    "company research"
+  ],
+  "tags": [
+    "company enrichment",
+    "domain intelligence",
+    "tech stack detection",
+    "WHOIS",
+    "company research"
+  ],
+  "categories": [
+    "business-intelligence",
+    "data",
+    "enrichment",
+    "research"
+  ],
   "repository": {
     "url": "https://github.com/FoundryNet/brand-intel-mcp",
     "source": "github"

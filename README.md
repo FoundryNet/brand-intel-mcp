@@ -4,8 +4,21 @@
 intelligence, tech stack detection, and brand research from free public sources,
 with an on-demand cache.
 
-Live MCP endpoint (Streamable HTTP):
-`https://brand-intel-mcp-production.up.railway.app/mcp`
+## Connect
+
+- **MCP endpoint** (Streamable HTTP): `https://brand-intel-mcp-production.up.railway.app/mcp`
+- **Registry:** `io.github.FoundryNet/brand-intel-mcp`
+- **Agent card:** `https://brand-intel-mcp-production.up.railway.app/.well-known/agent-card.json`
+
+### Claude Desktop / Cursor / Claude Code
+
+```
+claude mcp add --transport http brand-intel https://brand-intel-mcp-production.up.railway.app/mcp
+```
+
+```json
+{ "mcpServers": { "brand-intel": { "url": "https://brand-intel-mcp-production.up.railway.app/mcp" } } }
+```
 
 ## Tools
 
@@ -37,12 +50,11 @@ Twitter/LinkedIn candidate URLs).
 URLs (leads, not confirmations). `employee_estimate` has no reliable free source,
 so it's left null rather than fabricated — a future paid-enrichment hook.
 
-## Connect
-
-Smithery: `@foundrynet/brand-intel` · MCP registry: `io.github.FoundryNet/brand-intel-mcp`
-
-```json
-{ "mcpServers": { "brand-intel": { "url": "https://brand-intel-mcp-production.up.railway.app/mcp" } } }
-```
+Smithery: `io.github.FoundryNet/brand-intel-mcp`
 
 Built by [FoundryNet](https://foundrynet.io) · hello@foundrynet.io
+
+## Live network activity
+
+**Live feed:** [mint.foundrynet.io/feed](https://mint.foundrynet.io/feed)  
+Real-time verified work across 13 servers and autonomous agents, anchored on Solana via [MINT Protocol](https://mint.foundrynet.io).

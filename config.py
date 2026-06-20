@@ -62,5 +62,39 @@ PRICE_DOMAIN_PROFILE   = float(_env("PRICE_DOMAIN_PROFILE", "0.02"))
 PRICE_TECH_STACK       = float(_env("PRICE_TECH_STACK", "0.01"))
 PRICE_BATCH_PER_DOMAIN = float(_env("PRICE_BATCH_PER_DOMAIN", "0.01"))
 PRICE_BATCH_MIN        = float(_env("PRICE_BATCH_MIN", "0.05"))
+PRICE_DAILY_BRIEF      = float(_env("PRICE_DAILY_BRIEF", "5"))
+
+# ── Daily curated brief ──────────────────────────────────────────────────────
+BRIEF_HOUR_UTC = int(_env("BRIEF_HOUR_UTC", "5"))   # curator runs at 05:00 UTC
+SERVER_SLUG    = "brand-intel"
+# Cross-network brief catalog (server -> price + tool) for related_briefs.
+NETWORK_BRIEFS = {
+    "financial-signals": "$25", "cyber-intel": "$15", "patent-intel": "$10",
+    "gov-contracts": "$10", "compliance": "$10", "brand-intel": "$5", "weather-intel": "$5",
+}
 
 PUBLIC_MCP_URL = _env("PUBLIC_MCP_URL", "https://brand-intel-mcp-production.up.railway.app/mcp")
+
+# ── FoundryNet Data Network — full sister-server map (auto-updated 2026-06-19) ──
+# Re-binds SISTER_SERVERS to the complete network (all 11 servers, self excluded),
+# now including fact-check-mcp, oss-intel-mcp, social-intel-mcp.
+_FNET_ALL_SERVERS = {
+    "mint-mcp":              "https://mint-mcp-production.up.railway.app/mcp",
+    "foundrynet-mcp":        "https://foundrynet-mcp-production.up.railway.app/mcp",
+    "gov-contracts-mcp":     "https://gov-contracts-mcp-production.up.railway.app/mcp",
+    "brand-intel-mcp":       "https://brand-intel-mcp-production.up.railway.app/mcp",
+    "patent-intel-mcp":      "https://patent-intel-mcp-production.up.railway.app/mcp",
+    "financial-signals-mcp": "https://financial-signals-mcp-production.up.railway.app/mcp",
+    "weather-intel-mcp":     "https://weather-intel-mcp-production.up.railway.app/mcp",
+    "cyber-intel-mcp":       "https://cyber-intel-mcp-production.up.railway.app/mcp",
+    "compliance-mcp":        "https://compliance-mcp-production.up.railway.app/mcp",
+    "academic-intel-mcp":    "https://academic-intel-mcp-production.up.railway.app/mcp",
+    "fact-check-mcp":        "https://fact-check-mcp-production.up.railway.app/mcp",
+    "oss-intel-mcp":         "https://oss-intel-mcp-production.up.railway.app/mcp",
+    "social-intel-mcp":      "https://social-intel-mcp-production.up.railway.app/mcp",
+    "crypto-intel-mcp":      "https://crypto-intel-mcp-production.up.railway.app/mcp",
+    "market-data-mcp":       "https://market-data-mcp-production.up.railway.app/mcp",
+    "email-verify-mcp":      "https://email-verify-mcp-production.up.railway.app/mcp",
+    "currency-intel-mcp":    "https://currency-intel-mcp-production.up.railway.app/mcp",
+}
+SISTER_SERVERS = {k: v for k, v in _FNET_ALL_SERVERS.items() if k != "brand-intel-mcp"}

@@ -76,6 +76,29 @@ async def stale_domains(before_iso: str, limit: int = 200) -> list:
     return [r["domain"] for r in rows if r.get("domain")]
 
 
+# ── generic helpers (daily_curator) ──────────────────────────────────────────
+async def select(table: str, params: dict) -> list:
+    """Generic PostgREST GET. Returns a list (empty on failure)."""
+    return await _select(table, params)
+
+
+async def upsert(table: str, rows: list, on_conflict: str) -> dict:
+    """Generic merge-duplicates upsert. Returns {"data": [...]} or {"error": ...}."""
+    if not configured():
+        return {"error": "not_configured"}
+    r = await request_json("POST", _url(table),
+                           headers=_headers({"Prefer": "resolution=merge-duplicates,return=representation"}),
+                           params={"on_conflict": on_conflict},
+                           body=rows, timeout=config.REQUEST_TIMEOUT)
+    if isinstance(r, list):
+        return {"data": r}
+    return r if isinstance(r, dict) else {"error": "bad_response", "detail": str(r)}
+
+
+async def rpc(fn: str, body: dict):
+    return await _rpc(fn, body)
+
+
 # ── free-tier counter ─────────────────────────────────────────────────────────
 async def claim_free_query(agent_key: str, day: str, cap: int) -> Optional[dict]:
     r = await _rpc("brand_claim_free_query",

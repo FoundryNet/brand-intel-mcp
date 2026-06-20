@@ -11,11 +11,11 @@ def register(mcp) -> None:
         agent_id: Optional[str] = None,
         payment_tx: Optional[str] = None,
     ) -> dict:
-        """Full brand-intelligence profile for a domain: registrar + registration /
-        expiry dates, nameservers, SSL issuer + expiry (from CT logs), detected
-        tech stack + CMS + hosting provider, Wayback history (first snapshot + total
-        snapshots), and social profiles. Great for company enrichment and brand
-        research. Served from a 7-day cache; a miss enriches live.
+        """Profile a company or domain for company enrichment and lead enrichment:
+        registration age and registrar (WHOIS/RDAP), nameservers, SSL issuer +
+        expiry (SSL/CT logs), tech stack detection (CMS, frameworks, hosting),
+        Wayback history, and social profiles. Domain intelligence and company
+        research in one call. Served from a 7-day cache; a miss enriches live.
 
         PAID: $0.02 USDC per query after a daily free allowance (10/day). On a 402,
         pay the returned Solana memo and re-call with the SAME args plus

@@ -11,9 +11,10 @@ def register(mcp) -> None:
         agent_id: Optional[str] = None,
         payment_tx: Optional[str] = None,
     ) -> dict:
-        """Detected technologies for a domain — frameworks, CMS, hosting provider,
-        analytics, and platform signals — from homepage + response-header
-        heuristics. Tech stack detection for competitive and sales research.
+        """Analyze a domain's tech stack — frameworks, CMS, hosting provider,
+        analytics, and platform signals — via tech-stack detection over homepage
+        and HTTP response-header fingerprinting. Domain intelligence for company
+        research, competitive analysis, and lead enrichment.
 
         PAID: $0.01 USDC per query after the daily free allowance (10/day). On a
         402, pay the returned Solana memo and re-call with the SAME args plus

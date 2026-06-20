@@ -27,6 +27,7 @@ from starlette.responses import JSONResponse
 
 import config
 import core
+import daily_curator
 import identity
 import payment_gate
 import supa
@@ -57,7 +58,7 @@ tools.register_all(mcp)
 async def health(request: Request) -> JSONResponse:
     return JSONResponse({
         "status": "ok", "service": "brand-intel-mcp", "transport": "streamable-http",
-        "tools": ["domain_profile", "tech_stack", "domain_age", "batch_enrich"],
+        "tools": ["domain_profile", "tech_stack", "domain_age", "batch_enrich", "daily_brief", "mint_info"],
         "cache": "supabase:brand_intel" if supa.configured() else "unconfigured",
         "cache_ttl_days": config.CACHE_TTL_DAYS,
         "x402_enabled": config.X402_ENABLED,
@@ -133,15 +134,25 @@ async def rest_batch(request: Request) -> JSONResponse:
 
 # ── Discovery ────────────────────────────────────────────────────────────────
 _AGENT_CARD = {
-    "name": "Brand Intelligence MCP",
-    "description": ("Domain & brand intelligence for agents: company enrichment, "
-                    "domain intelligence, tech stack detection, and brand research "
-                    "from WHOIS, DNS, CT logs, Wayback, and tech fingerprinting."),
-    "url": "https://github.com/FoundryNet/brand-intel-mcp",
-    "capabilities": ["company_enrichment", "domain_intelligence",
-                     "tech_stack_detection", "brand_research"],
+    "name": "Brand & Domain Intelligence MCP",
+    "description": ("Enrich any company or domain on demand — registration age "
+                    "(WHOIS), tech stack, hosting, and SSL details — for company "
+                    "research and lead enrichment."),
+    "url": config.PUBLIC_MCP_URL,
+    "version": "1.0.0",
+    "capabilities": {
+        "tools": ["domain_profile", "tech_stack", "domain_age",
+                  "batch_enrich", "daily_brief", "mint_info"],
+    },
+    "provider": {"name": "FoundryNet", "url": "https://foundrynet.io"},
+    "network": "FoundryNet Data Network",
+    "attestation": {
+        "protocol": "MINT Protocol",
+        "endpoint": "https://mint-mcp-production.up.railway.app/mcp",
+        "verified_outputs": True, "live_feed": "https://mint.foundrynet.io/feed", "feed_api": "https://mint-mcp-production.up.railway.app/v1/feed",
+    },
     "protocols": {
-        "mcp": {"endpoint": config.PUBLIC_MCP_URL, "transport": "streamable-http", "tools_count": 4},
+        "mcp": {"endpoint": config.PUBLIC_MCP_URL, "transport": "streamable-http", "tools_count": 5},
         "x402": {"supported": True, "currency": "USDC", "network": "solana"},
     },
     "contact": "hello@foundrynet.io",
@@ -208,6 +219,31 @@ async def _refresh_loop():
             logger.warning(f"refresh loop error: {e}")
 
 
+_FREE_TOOL_NAMES = {"mint_info", "macro_dashboard", "cve_detail", "detail",
+                    "domain_age", "convert", "rates", "market_overview", "price",
+                    "quote", "batch_quote", "sector_performance"}
+
+
+@mcp.custom_route("/.well-known/mcp.json", methods=["GET"])
+async def wellknown_mcp_json(request: Request) -> JSONResponse:
+    """Machine-discovery card (emerging standard) for AI clients/crawlers."""
+    live = await _live_tools()
+    names = [t["name"] for t in live]
+    return JSONResponse({
+        "name": _AGENT_CARD["name"],
+        "description": _AGENT_CARD["description"],
+        "url": config.PUBLIC_MCP_URL,
+        "transport": ["streamable-http"],
+        "tools": names,
+        "pricing": {"model": "per-query", "free_tier": True,
+                    "paid_tools": [n for n in names if n not in _FREE_TOOL_NAMES]},
+        "attestation": {"enabled": True, "protocol": "MINT Protocol",
+                        "feed": "https://mint.foundrynet.io/feed"},
+        "network": {"name": "FoundryNet Data Network", "servers": 17,
+                    "homepage": "https://foundrynet.io"},
+    }, headers={"Cache-Control": "public, max-age=300"})
+
+
 def build_dual_app():
     main_app = mcp.http_app(transport="http", path="/mcp")
     sse_app = mcp.http_app(transport="sse", path="/sse")
@@ -221,12 +257,14 @@ def build_dual_app():
         async with main_life(app):
             async with sse_life(app):
                 task = asyncio.create_task(_refresh_loop())
+                brief_task = asyncio.create_task(daily_curator.curator_loop())
                 try:
                     yield
                 finally:
-                    task.cancel()
-                    with contextlib.suppress(Exception):
-                        await task
+                    for t in (task, brief_task):
+                        t.cancel()
+                        with contextlib.suppress(Exception):
+                            await t
     main_app.router.lifespan_context = _dual_lifespan
     return main_app
 

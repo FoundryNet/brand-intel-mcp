@@ -11,9 +11,10 @@ def register(mcp) -> None:
         agent_id: Optional[str] = None,
         payment_tx: Optional[str] = None,
     ) -> dict:
-        """Enrich many domains at once and get back an array of full brand-intel
-        profiles — the volume play for sales / lead-enrichment agents. Up to 50
-        domains per call, served from cache where fresh.
+        """Enrich many companies or domains at once for bulk lead enrichment and
+        company research — returns an array of full profiles (registration age via
+        WHOIS/RDAP, tech-stack detection, hosting, SSL/CT details). The volume play
+        for sales agents. Up to 50 domains per call, served from cache where fresh.
 
         PAID: $0.01 USDC per domain, minimum $0.05, after the daily free allowance.
         The exact price is computed from the (deduped) domain count and returned in

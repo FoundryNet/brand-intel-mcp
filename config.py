@@ -16,7 +16,7 @@ Optional:
   PAYMENT_VERIFY_RPC      Solana JSON-RPC for on-chain payment confirmation
   PAYMENT_USDC_MINT       SPL mint accepted (default USDC mainnet)
   PAYMENT_EXPIRY_SECONDS  payment freshness / replay window, default 300
-  FREE_TIER_DAILY         free paid-tool queries/day per agent, default 10
+  FREE_TIER_DAILY         free paid-tool queries/day per agent, default 5
   CACHE_TTL_DAYS          cache freshness window, default 7
   PRICE_DOMAIN_PROFILE    default 0.02
   PRICE_TECH_STACK        default 0.01
@@ -41,6 +41,10 @@ def _flag(name: str, default: bool) -> bool:
 # ── Standalone brand-intel Supabase (NOT the core Foundry project) ────────────
 SUPABASE_URL         = _env("SUPABASE_URL", "https://irqpkttocandqsgcuutw.supabase.co").rstrip("/")
 SUPABASE_SERVICE_KEY = _env("SUPABASE_SERVICE_KEY")
+# Shared-hub consolidation: which Postgres schema this service's tables live in.
+# "public" = standalone; a service name (e.g. "brand") = the shared intel hub,
+# reached via PostgREST Accept-Profile/Content-Profile headers.
+SUPABASE_SCHEMA      = _env("SUPABASE_SCHEMA", "public")
 
 PORT            = int(_env("PORT", "8080"))
 REQUEST_TIMEOUT = int(_env("REQUEST_TIMEOUT", "30"))
@@ -50,19 +54,30 @@ REFRESH_INTERVAL_HOURS = int(_env("REFRESH_INTERVAL_HOURS", "24"))
 
 # ── x402 pay-per-query gate (per-tool pricing) ───────────────────────────────
 X402_ENABLED      = _flag("X402_ENABLED", True)
-SOLANA_WALLET     = _env("SOLANA_WALLET", "wUumjWWvtFEr69qkTw3wHNVQVxLA8DTyJSyVgGmLThd")
+SOLANA_WALLET     = _env("SOLANA_WALLET", "wUumjWJjfn27VQhTXd1jUNTzszCmsErkzaEeHWbLThd")
 PAYMENT_RECIPIENT = _env("PAYMENT_RECIPIENT", SOLANA_WALLET).strip()
 PAYMENT_VERIFY_RPC = _env("PAYMENT_VERIFY_RPC", "https://api.mainnet-beta.solana.com").rstrip("/")
 PAYMENT_USDC_MINT  = _env("PAYMENT_USDC_MINT", "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v").strip()
 PAYMENT_EXPIRY_SECONDS = int(_env("PAYMENT_EXPIRY_SECONDS", "300"))
 
-FREE_TIER_DAILY = int(_env("FREE_TIER_DAILY", "10"))
+FREE_TIER_DAILY = int(_env("FREE_TIER_DAILY", "5"))
 
-PRICE_DOMAIN_PROFILE   = float(_env("PRICE_DOMAIN_PROFILE", "0.02"))
+# $0.05 (up from $0.02): domain_profile now rides cross-server enrichment from up
+# to five sibling Data Network servers (financial, patents, compliance, OSS, cyber)
+# — five+ data sources in one call justify the premium.
+PRICE_DOMAIN_PROFILE   = float(_env("PRICE_DOMAIN_PROFILE", "0.05"))
 PRICE_TECH_STACK       = float(_env("PRICE_TECH_STACK", "0.01"))
 PRICE_BATCH_PER_DOMAIN = float(_env("PRICE_BATCH_PER_DOMAIN", "0.01"))
 PRICE_BATCH_MIN        = float(_env("PRICE_BATCH_MIN", "0.05"))
 PRICE_DAILY_BRIEF      = float(_env("PRICE_DAILY_BRIEF", "5"))
+PRICE_BRIEF_SUMMARY = float(_env("PRICE_BRIEF_SUMMARY", "0.5"))  # $0.50 sample tier
+
+# ── Stripe rail (parallel payment option to x402, for the daily brief) ────────
+# Agents without a USDC wallet pay this hosted Payment Link instead. The secret
+# key verifies the resulting Checkout Session; the link URL is shown on a 402.
+STRIPE_SECRET_KEY       = _env("STRIPE_SECRET_KEY", "")
+STRIPE_LINK_DAILY_BRIEF = _env("STRIPE_LINK_DAILY_BRIEF",
+                               "https://foundrynet.io/pricing")
 
 # ── Daily curated brief ──────────────────────────────────────────────────────
 BRIEF_HOUR_UTC = int(_env("BRIEF_HOUR_UTC", "5"))   # curator runs at 05:00 UTC
@@ -98,3 +113,24 @@ _FNET_ALL_SERVERS = {
     "currency-intel-mcp":    "https://currency-intel-mcp-production.up.railway.app/mcp",
 }
 SISTER_SERVERS = {k: v for k, v in _FNET_ALL_SERVERS.items() if k != "brand-intel-mcp"}
+
+# ── Subscriptions (network-wide $19/$49 Stripe links; same on every server) ──────
+# These lead the 402 response: a credit-card subscription converts where "send USDC
+# with an SPL-memo" does not. Both unlock unlimited queries here; Intelligence also
+# unlocks Knowledge Bases + composite products on foundrynet-agents.
+STRIPE_LINK_PRO      = _env("STRIPE_LINK_PRO",   "https://buy.stripe.com/3cIdR278Cglq7bY5b67N604")
+STRIPE_LINK_INTEL    = _env("STRIPE_LINK_INTEL", "https://buy.stripe.com/4gMaEQ78C8SYaoa32Y7N605")
+NETWORK_SERVER_COUNT = int(_env("NETWORK_SERVER_COUNT", "17"))
+
+# ── Dynamic allowlist (subscriber keys, 5-min cache; static env = fallback) ──────
+# Default: poll the agents /v1/allowlist (no DB creds needed). To read forge_api_keys
+# directly instead, set FORGE_KEYS_SUPABASE_URL + FORGE_KEYS_SUPABASE_KEY.
+FNET_ALLOWLIST_URL      = _env("FNET_ALLOWLIST_URL",
+                               "https://foundrynet-agents-production.up.railway.app/v1/allowlist")
+FORGE_KEYS_SUPABASE_URL = _env("FORGE_KEYS_SUPABASE_URL", "")
+FORGE_KEYS_SUPABASE_KEY = _env("FORGE_KEYS_SUPABASE_KEY", "")
+
+# ── Per-call event log (fire-and-forget telemetry to the agents ingest) ──────────
+EVENT_LOG_URL   = _env("EVENT_LOG_URL",
+                       "https://foundrynet-agents-production.up.railway.app/v1/call-events")
+EVENT_LOG_TOKEN = _env("EVENT_LOG_TOKEN", "")

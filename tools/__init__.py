@@ -11,6 +11,7 @@ from . import tech as tech_tool
 from . import age as age_tool
 from . import batch as batch_tool
 from . import daily_brief as daily_brief_tool
+from . import brief_summary as brief_summary_tool
 from . import mint as mint_tool
 
 
@@ -20,4 +21,5 @@ def register_all(mcp) -> None:
     age_tool.register(mcp)
     batch_tool.register(mcp)
     daily_brief_tool.register(mcp)
+    brief_summary_tool.register(mcp)
     mint_tool.register(mcp)

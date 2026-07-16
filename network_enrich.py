@@ -2,9 +2,9 @@
 intelligence" hub.
 
 When domain_profile resolves a domain, we best-effort query sibling Data Network
-servers (financial-signals, patent-intel, compliance, oss-intel) for anything they
-know about the same company and ride the result along in `network_intelligence`,
-at NO extra cost to the buyer. Every call is fail-open: a miss, an error, or a slow
+servers (financial-signals, patent-intel, compliance, oss-intel, cyber-intel) for
+anything they know about the same company/domain and ride the result along in
+`network_intelligence`, at NO extra cost to the buyer. Every call is fail-open: a miss, an error, or a slow
 sibling just omits that block — it never blocks or breaks the primary response.
 
 Internal calls carry the fleet `fnet_` bearer (FNET_API_KEY), which bypasses each
@@ -22,7 +22,8 @@ from http_util import request_json
 logger = logging.getLogger("brand.enrich")
 
 # Fleet bearer for free internal sibling calls (bypasses each sibling's x402 gate).
-FNET_KEY = (os.environ.get("FNET_API_KEY")
+FNET_KEY = (os.environ.get("FNET_BEARER_KEY")
+            or os.environ.get("FNET_API_KEY")
             or os.environ.get("FORGE_API_KEY")
             or os.environ.get("MINT_API_KEY", "")).strip()
 
@@ -86,6 +87,10 @@ async def enrich_profile(profile: dict) -> dict:
     async def _noop():
         return None
 
+    # cyber-intel checks the REAL domain (not a name guess), so it's the most
+    # reliable enrichment block — domain threat reputation across feeds.
+    domain = (profile.get("domain") or "").strip().lower()
+
     jobs = {
         "financial": (query_sibling("financial-signals", "/v1/company", {"ticker": ticker})
                       if ticker else _noop()),
@@ -95,6 +100,8 @@ async def enrich_profile(profile: dict) -> dict:
                                     {"keyword": name, "days_back": 90}),
         "oss": query_sibling("oss-intel", "/v1/dependency-risk",
                              {"package_name": name, "ecosystem": "npm"}),
+        "cyber": (query_sibling("cyber-intel", "/v1/check-domain", {"domain": domain})
+                  if domain else _noop()),
     }
     keys = list(jobs)
     settled = await asyncio.gather(*jobs.values(), return_exceptions=True)
@@ -139,6 +146,16 @@ async def enrich_profile(profile: dict) -> dict:
             "package": name, "ecosystem": "npm",
             "risk_score": oss.get("risk_score"),
             "known_vulnerabilities": oss.get("known_vulnerabilities"),
+        }
+
+    cyber = got.get("cyber")
+    if isinstance(cyber, dict) and ("indicators" in cyber or "sources" in cyber):
+        indicators = cyber.get("indicators") or []
+        enrichment["domain_threat"] = {
+            "domain": cyber.get("domain") or domain,
+            "sources_checked": len(cyber.get("sources") or []),
+            "threat_indicators": len(indicators),
+            "flagged": bool(indicators),
         }
 
     return enrichment

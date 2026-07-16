@@ -76,7 +76,7 @@ async def _okf_reliability_route(request):
 async def health(request: Request) -> JSONResponse:
     return JSONResponse({
         "status": "ok", "service": "brand-intel-mcp", "transport": "streamable-http",
-        "tools": ["domain_profile", "tech_stack", "domain_age", "batch_enrich", "daily_brief", "mint_info"],
+        "tools": ["domain_profile", "tech_stack", "domain_age", "batch_enrich", "daily_brief", "brief_summary", "mint_info"],
         "cache": "supabase:brand_intel" if supa.configured() else "unconfigured",
         "cache_ttl_days": config.CACHE_TTL_DAYS,
         "x402_enabled": config.X402_ENABLED,
@@ -160,20 +160,19 @@ _AGENT_CARD = {
     "version": "1.0.0",
     "capabilities": {
         "tools": ["domain_profile", "tech_stack", "domain_age",
-                  "batch_enrich", "daily_brief", "mint_info"],
+                  "batch_enrich", "daily_brief", "brief_summary", "mint_info"],
     },
     "provider": {"name": "FoundryNet", "url": "https://foundrynet.io"},
     "network": "FoundryNet Data Network",
     "attestation": {
-        "protocol": "MINT Protocol",
-        "endpoint": "https://mint-mcp-production.up.railway.app/mcp",
-        "verified_outputs": True, "live_feed": "https://mint.foundrynet.io/feed", "feed_api": "https://mint-mcp-production.up.railway.app/v1/feed",
+        "verified_outputs": True,
+        "method": "cryptographic provenance",
     },
     "protocols": {
-        "mcp": {"endpoint": config.PUBLIC_MCP_URL, "transport": "streamable-http", "tools_count": 5},
-        "x402": {"supported": True, "currency": "USDC", "network": "solana"},
+        "mcp": {"endpoint": config.PUBLIC_MCP_URL, "transport": "streamable-http", "tools_count": 7},
+        "x402": {"supported": True},
     },
-    "contact": "hello@foundrynet.io",
+    "contact": "forge@foundrynet.io",
 }
 
 
@@ -205,20 +204,20 @@ async def server_card(request: Request) -> JSONResponse:
         "serverInfo": {"name": "Brand Intelligence MCP", "version": "1.0.0"},
         "authentication": {"type": "http", "scheme": "bearer",
                            "description": ("domain_age is free; other tools give 10 free "
-                                           "queries/day then take an fnet_ Bearer key OR x402 USDC.")},
+                                           "queries/day then take an fnet_ Bearer key or a per-query payment.")},
         "tools": live,
         "version": "1.0", "name": "Brand Intelligence MCP",
         "tagline": "Company enrichment & domain intelligence for agents.",
         "description": ("Domain & brand intelligence: company enrichment, domain "
                         "intelligence, tech stack detection, and brand research. WHOIS, "
                         "DNS, SSL/CT logs, Wayback history, tech fingerprinting, and "
-                        "socials — cached, with a free tier then 2¢/profile via x402."),
+                        "socials — cached, with a free tier then 2¢/profile."),
         "serverUrl": config.PUBLIC_MCP_URL, "transport": "streamable-http",
         "tools_count": len(live),
         "categories": ["data", "enrichment", "intelligence", "research", "sales"],
         "pricing": {"model": "metered",
                     "free_tier": f"{config.FREE_TIER_DAILY} queries/day per agent + free domain_age",
-                    "paid_from": f"{config.PRICE_TECH_STACK} USDC per query (x402)"},
+                    "paid_from": f"{config.PRICE_TECH_STACK} per query"},
     }, headers={"Cache-Control": "public, max-age=300"})
 
 
@@ -255,8 +254,7 @@ async def wellknown_mcp_json(request: Request) -> JSONResponse:
         "tools": names,
         "pricing": {"model": "per-query", "free_tier": True,
                     "paid_tools": [n for n in names if n not in _FREE_TOOL_NAMES]},
-        "attestation": {"enabled": True, "protocol": "MINT Protocol",
-                        "feed": "https://mint.foundrynet.io/feed"},
+        "attestation": {"enabled": True, "method": "cryptographic provenance"},
         "network": {"name": "FoundryNet Data Network", "servers": 17,
                     "homepage": "https://foundrynet.io"},
     }, headers={"Cache-Control": "public, max-age=300"})

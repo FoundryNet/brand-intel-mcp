@@ -25,9 +25,8 @@ keywords:
   - brand-research
   - due-diligence
 attestation:
-  protocol: "MINT Protocol"
   verified_outputs: true
-  live_feed: "https://mint.foundrynet.io/feed"
+  method: "cryptographic provenance"
 network:
   name: "FoundryNet Data Network"
   servers: 17
@@ -41,4 +40,4 @@ startCommand:
       api_key:
         type: string
         title: "Forge billing key (optional)"
-        description: "fnet_ key to bypass the per-query x402 paywall and bill to a Forge account."
+        description: "fnet_ key to bypass the per-query paywall and bill to a Forge account."

@@ -16,15 +16,15 @@ def register(mcp) -> None:
         WHOIS/RDAP, tech-stack detection, hosting, SSL/CT details). The volume play
         for sales agents. Up to 50 domains per call, served from cache where fresh.
 
-        PAID: $0.01 USDC per domain, minimum $0.05, after the daily free allowance.
+        PAID: $0.01 per domain, minimum $0.05, after the daily free allowance.
         The exact price is computed from the (deduped) domain count and returned in
-        the 402; pay that memo and re-call with the SAME domains plus
+        the 402; settle that memo and re-call with the SAME domains plus
         payment_tx=<signature>. An Authorization: Bearer fnet_ key bypasses it.
 
         Args:
             domains: array of domains, e.g. ["stripe.com", "plaid.com"].
             agent_id: stable id for your agent (scopes the free-tier counter).
-            payment_tx: Solana tx signature, when re-calling after a 402.
+            payment_tx: payment transaction reference, when re-calling after a 402.
         """
         return await core.do_batch(
             domains, agent_key=identity.resolve_agent_key(agent_id),

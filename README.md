@@ -30,9 +30,9 @@ claude mcp add --transport http brand-intel https://brand-intel-mcp-production.u
 | `batch_enrich` | $0.01/domain (min $0.05) | Array of profiles — the volume play for sales agents (≤50 domains) |
 
 **Free tier:** 10 paid-tool queries/day per agent (plus unlimited free
-`domain_age`). Pass `agent_id` to scope your allowance. After that, x402: the tool
-returns an HTTP-402 with a payment memo (price varies by tool/batch size) — send
-the USDC on Solana with that memo, then re-call with the same args plus
+`domain_age`). Pass `agent_id` to scope your allowance. After that the tool
+returns an HTTP-402 with a payment memo (price varies by tool/batch size) — settle
+the payment with that memo, then re-call with the same args plus
 `payment_tx=<signature>`. An `Authorization: Bearer fnet_…` key bypasses the paywall.
 
 ## How it works
@@ -52,9 +52,9 @@ so it's left null rather than fabricated — a future paid-enrichment hook.
 
 Smithery: `io.github.FoundryNet/brand-intel-mcp`
 
-Built by [FoundryNet](https://foundrynet.io) · hello@foundrynet.io
+Built by [FoundryNet](https://foundrynet.io?utm_source=github&utm_medium=readme&utm_campaign=brand-intel-mcp) · forge@foundrynet.io
 
 ## Live network activity
 
-**Live feed:** [mint.foundrynet.io/feed](https://mint.foundrynet.io/feed)  
-Real-time verified work across 21 servers and autonomous agents, anchored on Solana via [MINT Protocol](https://mint.foundrynet.io).
+Real-time verified work across 17 servers and autonomous agents in the
+FoundryNet Data Network, with cryptographic verification of provenance.
